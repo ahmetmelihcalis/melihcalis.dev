@@ -1,6 +1,5 @@
 import os
-import smtplib
-from email.mime.text import MIMEText
+import requests
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
@@ -31,11 +30,18 @@ class ContactForm(BaseModel):
 
 @app.post("/api/contact")
 async def send_mail(data: ContactForm):
-    my_email = os.getenv("MY_EMAIL")
-    app_password = os.getenv("MY_APP_PASSWORD")
 
-    email_subject = f"PORTFOLIO CONTACT: {data.name}"
-    email_body = f"""
+    brevo_api_key = os.getenv("BREVO_API_KEY")
+    my_email = os.getenv("MY_EMAIL") 
+
+    if data.website and data.website.strip() != "":
+        raise HTTPException(status_code=400, detail="Spam detected.")
+
+    if not brevo_api_key or not my_email:
+        raise HTTPException(status_code=500, detail="API credentials not configured.")
+    
+    email_subject = f"PORTFOLIO MESSAGE: {data.name}"
+    email_content = f"""
     You have a new message from your website!
     
     Sender: {data.name}
@@ -44,37 +50,32 @@ async def send_mail(data: ContactForm):
     Message:
     {data.message}
     """
+
+    url = "https://api.brevo.com/v3/smtp/email"
     
-    if data.website:
-        email_body += f"\n\n--- SPAM DETECTED ---\nWebsite field filled: {data.website}"
-
-    msg = MIMEText(email_body)
-    msg['Subject'] = email_subject
-    msg['From'] = my_email
-    msg['To'] = my_email
-
-    if data.website and data.website.strip() != "":
-        raise HTTPException(status_code=400, detail="Spam detected.")
-
-    if not my_email or not app_password:
-        raise HTTPException(status_code=500, detail="Email credentials not found.")
+    headers = {
+        "accept": "application/json",
+        "api-key": brevo_api_key,
+        "content-type": "application/json"
+    }
+    
+    payload = {
+        "sender": {"name": data.name, "email": my_email},
+        "to": [{"email": my_email, "name": "Ahmet Melih"}], 
+        "replyTo": {"email": data.email, "name": data.name}, 
+        "subject": email_subject,
+        "textContent": email_content
+    }
 
     try:
-
-        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=30)
+        response = requests.post(url, json=payload, headers=headers)
         
-        server.ehlo()
-        
-        server.starttls()
-        
-        server.ehlo()
-
-        server.login(my_email, app_password)
-        server.send_message(msg)
-        server.quit()
-        
-        return {"message": "Message sent successfully!"}
-        
+        if response.status_code == 201:
+            return {"message": "Message sent successfully!"}
+        else:
+            print(f"Brevo Error: {response.text}")
+            raise HTTPException(status_code=500, detail="Failed to send email via API")
+            
     except Exception as e:
-        print(f"Error details: {e}")
-        raise HTTPException(status_code=500, detail=f"Email sending failed: {str(e)}")
+        print(f"System Error: {e}")
+        raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
