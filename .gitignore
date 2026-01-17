@@ -1,0 +1,30 @@
+# --- Python (Backend) ---
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+
+# --- Environment & Secrets ---
+.env
+.env.local
+
+# --- Operating System Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- IDE Settings ---
+.vscode/
+.idea/
+
+# --- Node.js  ---
+node_modules/
+dist/
+build/
+coverage/
+
+# --- Logs and Archives ---
+*.log
+*.zip
+*.tar.gz
