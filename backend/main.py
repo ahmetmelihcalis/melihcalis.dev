@@ -10,6 +10,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"status": "ok", "message": "The backend service is running."}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,38 +31,44 @@ class ContactForm(BaseModel):
 
 @app.post("/api/contact")
 async def send_mail(data: ContactForm):
-    benim_mailim = os.getenv("MY_EMAIL")
-    uygulama_sifresi = os.getenv("MY_APP_PASSWORD")
+    my_email = os.getenv("MY_EMAIL")
+    app_password = os.getenv("MY_APP_PASSWORD")
 
-    mail_konusu = f"PORTFOLYO İLETİŞİM: {data.name}"
-    mail_icerigi = f"""
-    Web sitenden yeni bir mesajın var!
+    email_subject = f"PORTFOLIO CONTACT: {data.name}"
     
-    Gönderen: {data.name}
-    E-posta: {data.email}
+    email_body = f"""
+    You have a new message from your website!
     
-    Mesaj:
+    Sender: {data.name}
+    Email: {data.email}
+    
+    Message:
     {data.message}
     """
+    
+    # Spam check (Honeypot log)
+    if data.website:
+        email_body += f"\n\n--- SPAM DETECTED ---\nWebsite field filled: {data.website}"
 
-    msg = MIMEText(mail_icerigi)
-    msg['Subject'] = mail_konusu
-    msg['From'] = benim_mailim
-    msg['To'] = benim_mailim
+    msg = MIMEText(email_body)
+    msg['Subject'] = email_subject
+    msg['From'] = my_email
+    msg['To'] = my_email
 
-    if getattr(data, 'website', None):
-        raise HTTPException(status_code=400, detail="Spam detected")
+    # Spam check (Block request)
+    if data.website and data.website.strip() != "":
+        raise HTTPException(status_code=400, detail="Spam detected: Website field filled.")
 
-    if not benim_mailim or not uygulama_sifresi:
-        raise HTTPException(status_code=500, detail="E-posta kimlik bilgileri yapılandırılmamış")
+    if not my_email or not app_password:
+        raise HTTPException(status_code=500, detail="Email credentials are not configured.")
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(benim_mailim, uygulama_sifresi)
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        
+        server.login(my_email, app_password)
         server.send_message(msg)
         server.quit()
         return {"message": "Message sent successfully!"}
     except Exception as e:
-        print(f"Hata: {e}")
-        raise HTTPException(status_code=500, detail="Mail gönderilemedi")
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to send email: {e}")
