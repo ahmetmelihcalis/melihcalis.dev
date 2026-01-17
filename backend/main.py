@@ -13,7 +13,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"status": "ok", "message": "The backend service is running."}
+    return {"status": "ok", "message": "Backend service is running."}
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,7 +35,6 @@ async def send_mail(data: ContactForm):
     app_password = os.getenv("MY_APP_PASSWORD")
 
     email_subject = f"PORTFOLIO CONTACT: {data.name}"
-    
     email_body = f"""
     You have a new message from your website!
     
@@ -46,7 +45,6 @@ async def send_mail(data: ContactForm):
     {data.message}
     """
     
-    # Spam check (Honeypot log)
     if data.website:
         email_body += f"\n\n--- SPAM DETECTED ---\nWebsite field filled: {data.website}"
 
@@ -55,20 +53,28 @@ async def send_mail(data: ContactForm):
     msg['From'] = my_email
     msg['To'] = my_email
 
-    # Spam check (Block request)
     if data.website and data.website.strip() != "":
-        raise HTTPException(status_code=400, detail="Spam detected: Website field filled.")
+        raise HTTPException(status_code=400, detail="Spam detected.")
 
     if not my_email or not app_password:
-        raise HTTPException(status_code=500, detail="Email credentials are not configured.")
+        raise HTTPException(status_code=500, detail="Email credentials not found.")
 
     try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=30)
         
+        server.ehlo()
+        
+        server.starttls()
+        
+        server.ehlo()
+
         server.login(my_email, app_password)
         server.send_message(msg)
         server.quit()
+        
         return {"message": "Message sent successfully!"}
+        
     except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to send email: {e}")
+        print(f"Error details: {e}")
+        raise HTTPException(status_code=500, detail=f"Email sending failed: {str(e)}")
