@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     const translations = {
         tr: {
             "nav-home": "Anasayfa",
@@ -106,6 +106,16 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { preloader.style.display = 'none'; }, 500);
     });
 
+    const emUser = 'a.melihcalis';
+    const emDomain = 'gmail.com';
+    const contactEmail = document.getElementById('contact-email');
+
+    if (contactEmail) {
+        const fullAddress = `${emUser}@${emDomain}`;
+        contactEmail.textContent = fullAddress;
+        contactEmail.href = `mailto:${fullAddress}`;
+    }
+
     let currentLang = localStorage.getItem('lang') || 'tr';
     if (!localStorage.getItem('lang')) {
         localStorage.setItem('lang', currentLang);
@@ -137,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        if(lang === 'tr') {
+        if (lang === 'tr') {
             document.getElementById('name').placeholder = "Adınız";
             document.getElementById('email').placeholder = "E-posta Adresiniz";
             document.getElementById('message').placeholder = "Mesajınız";
@@ -171,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navbarNav.classList.toggle('active');
         document.body.classList.toggle('menu-open', navbarNav.classList.contains('active'));
     });
-    
+
     document.addEventListener('click', (e) => {
         const isMenuOpen = navbarNav.classList.contains('active');
         if (!isMenuOpen) return;
@@ -210,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             if (!isDeleting) {
                 isDeleting = true;
-                typeTimeout = setTimeout(typeEffect, 2000); 
+                typeTimeout = setTimeout(typeEffect, 2000);
             } else {
                 isDeleting = false;
                 wordIndex = (wordIndex + 1) % words.length;
@@ -234,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     backToTopBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     setLanguage(currentLang);
@@ -246,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const btn = document.getElementById('sendBtn');
         const originalBtnText = btn.innerText;
-        
+
         btn.innerText = currentLang === 'en' ? 'Sending...' : 'Gönderiliyor...';
         btn.disabled = true;
 

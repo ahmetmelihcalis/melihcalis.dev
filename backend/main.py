@@ -1,35 +1,52 @@
 import os
 import requests
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel, Field
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.get("/")
 def read_root():
     return {"status": "ok", "message": "Backend service is running."}
 
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000",
+    "https://melihcalis.dev",
+    "https://www.melihcalis.dev"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 class ContactForm(BaseModel):
-    name: str
-    email: str
-    message: str
+    name: str = Field(..., min_length=2, max_length=50)
+    email: str = Field(..., max_length=50) 
+    message: str = Field(..., min_length=10, max_length=5000)
     website: Optional[str] = None
 
 @app.post("/api/contact")
-async def send_mail(data: ContactForm):
+@limiter.limit("5/minute")
+async def send_mail(request: Request, data: ContactForm):
 
     brevo_api_key = os.getenv("BREVO_API_KEY")
     my_email = os.getenv("MY_EMAIL") 
@@ -78,4 +95,4 @@ async def send_mail(data: ContactForm):
             
     except Exception as e:
         print(f"System Error: {e}")
-        raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
