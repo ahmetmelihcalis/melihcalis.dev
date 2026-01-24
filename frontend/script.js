@@ -106,15 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { preloader.style.display = 'none'; }, 500);
     });
 
-    const emUser = 'a.melihcalis';
-    const emDomain = 'gmail.com';
-    const contactEmail = document.getElementById('contact-email');
 
-    if (contactEmail) {
-        const fullAddress = `${emUser}@${emDomain}`;
-        contactEmail.textContent = fullAddress;
-        contactEmail.href = `mailto:${fullAddress}`;
-    }
 
     let currentLang = localStorage.getItem('lang') || 'tr';
     if (!localStorage.getItem('lang')) {
