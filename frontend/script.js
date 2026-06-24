@@ -1,4 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const CONTACT_API_PATH = '/api/contact';
+    const PLACEHOLDER_TEXT = {
+        tr: {
+            name: 'Adınız',
+            email: 'E-posta Adresiniz',
+            message: 'Mesajınız'
+        },
+        en: {
+            name: 'Your Name',
+            email: 'Your Email',
+            message: 'Your Message'
+        }
+    };
+    const FORM_MESSAGE_COLORS = {
+        success: '#2ecc71',
+        error: '#e74c3c'
+    };
 
     const translations = {
         tr: {
@@ -100,6 +117,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.querySelector('.menu-toggle');
     const backToTopBtn = document.getElementById("back-to-top");
     const preloader = document.getElementById('preloader');
+    const typewriterElement = document.getElementById('typewriter');
+    const contactForm = document.getElementById('contactForm');
+    const formMessage = document.getElementById('formMessage');
+    const sendButton = document.getElementById('sendBtn');
+    const formFields = {
+        name: document.getElementById('name'),
+        email: document.getElementById('email'),
+        message: document.getElementById('message'),
+        website: document.getElementById('website')
+    };
 
     window.addEventListener('load', () => {
         preloader.style.opacity = '0';
@@ -117,19 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
         en: ["Software Engineering Student", "AI Enthusiast", "Future Innovator"]
     };
 
-    function setLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem('lang', lang);
-        langToggle.textContent = lang.toUpperCase();
-        langToggle.setAttribute('aria-label', lang === 'en' ? 'English (EN)' : 'Türkçe (TR)');
-
+    function applyTextTranslations(lang) {
         document.querySelectorAll('[data-lang]').forEach(element => {
             const key = element.getAttribute('data-lang');
             if (translations[lang][key]) {
                 element.textContent = translations[lang][key];
             }
         });
+    }
 
+    function applyAttributeTranslations(lang) {
         document.querySelectorAll('[data-title]').forEach(element => {
             const key = element.getAttribute('data-title');
             if (translations[lang] && translations[lang][key]) {
@@ -138,32 +162,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 element.setAttribute('aria-label', text);
             }
         });
+    }
 
-        if (lang === 'tr') {
-            document.getElementById('name').placeholder = "Adınız";
-            document.getElementById('email').placeholder = "E-posta Adresiniz";
-            document.getElementById('message').placeholder = "Mesajınız";
-        } else {
-            document.getElementById('name').placeholder = "Your Name";
-            document.getElementById('email').placeholder = "Your Email";
-            document.getElementById('message').placeholder = "Your Message";
-        }
+    function applyFormPlaceholders(lang) {
+        formFields.name.placeholder = PLACEHOLDER_TEXT[lang].name;
+        formFields.email.placeholder = PLACEHOLDER_TEXT[lang].email;
+        formFields.message.placeholder = PLACEHOLDER_TEXT[lang].message;
+    }
+
+    function updateLanguageToggle(lang) {
+        langToggle.textContent = lang.toUpperCase();
+        langToggle.setAttribute('aria-label', lang === 'en' ? 'English (EN)' : 'Türkçe (TR)');
+    }
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
+        updateLanguageToggle(lang);
+        applyTextTranslations(lang);
+        applyAttributeTranslations(lang);
+        applyFormPlaceholders(lang);
         resetTypewriter();
+    }
+
+    function setTheme(isLight) {
+        body.classList.toggle('light-mode', isLight);
+        themeToggle.innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
     }
 
     const currentTheme = localStorage.getItem('theme');
     if (currentTheme === 'light') {
-        body.classList.add('light-mode');
-        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        setTheme(true);
     } else {
-        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        setTheme(false);
     }
 
     themeToggle.addEventListener('click', () => {
-        body.classList.toggle('light-mode');
-        const isLight = body.classList.contains('light-mode');
-        themeToggle.innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        setTheme(!body.classList.contains('light-mode'));
     });
 
     langToggle.addEventListener('click', () => setLanguage(currentLang === 'en' ? 'tr' : 'en'));
@@ -199,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const words = typewriterWords[currentLang];
         const currentWord = words[wordIndex];
         const typeSpeed = isDeleting ? 50 : 100;
-        const typewriterElement = document.getElementById('typewriter');
 
         if (!isDeleting && charIndex < currentWord.length) {
             typewriterElement.textContent = currentWord.substring(0, charIndex + 1);
@@ -222,18 +257,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function resetTypewriter() {
         clearTimeout(typeTimeout);
-        wordIndex = 0; charIndex = 0; isDeleting = false;
-        document.getElementById('typewriter').textContent = "";
+        wordIndex = 0;
+        charIndex = 0;
+        isDeleting = false;
+        typewriterElement.textContent = "";
         typeEffect();
     }
 
-    window.onscroll = () => {
+    function toggleBackToTopButton() {
         if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
             backToTopBtn.style.display = "flex";
         } else {
             backToTopBtn.style.display = "none";
         }
-    };
+    }
+
+    window.onscroll = toggleBackToTopButton;
+
     backToTopBtn.addEventListener("click", (e) => {
         e.preventDefault();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -241,54 +281,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setLanguage(currentLang);
 
-    const contactForm = document.getElementById('contactForm');
-    const formMessage = document.getElementById('formMessage');
+    function showFormMessage(message, type, timeoutMs) {
+        formMessage.textContent = message;
+        formMessage.style.color = FORM_MESSAGE_COLORS[type];
+        setTimeout(() => { formMessage.textContent = ""; }, timeoutMs);
+    }
+
+    function setSubmitState(isLoading) {
+        sendButton.innerText = isLoading
+            ? (currentLang === 'en' ? 'Sending...' : 'Gönderiliyor...')
+            : translations[currentLang]['btn-send'];
+        sendButton.disabled = isLoading;
+    }
+
+    function getFormData() {
+        return {
+            name: formFields.name.value,
+            email: formFields.email.value,
+            message: formFields.message.value,
+            website: formFields.website ? formFields.website.value : ""
+        };
+    }
 
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('sendBtn');
-        const originalBtnText = btn.innerText;
+        setSubmitState(true);
 
-        btn.innerText = currentLang === 'en' ? 'Sending...' : 'Gönderiliyor...';
-        btn.disabled = true;
-
-        const websiteHoneypot = document.getElementById('website') ? document.getElementById('website').value : "";
+        const formData = getFormData();
+        const websiteHoneypot = formData.website;
 
         if (websiteHoneypot.trim() !== "") {
-            formMessage.textContent = currentLang === 'en' ? "Bot submission blocked." : "Spam tespit edildi, gönderim engellendi.";
-            formMessage.style.color = "#e74c3c";
-            btn.innerText = originalBtnText;
-            btn.disabled = false;
-            setTimeout(() => { formMessage.textContent = ""; }, 4000);
+            showFormMessage(
+                currentLang === 'en' ? "Bot submission blocked." : "Spam tespit edildi, gönderim engellendi.",
+                'error',
+                4000
+            );
+            setSubmitState(false);
             return;
         }
 
-        const formData = {
-            name: document.getElementById('name').value,
-            email: document.getElementById('email').value,
-            message: document.getElementById('message').value,
-            website: websiteHoneypot
-        };
-
         try {
-            const response = await fetch('https://melihcalis-dev.onrender.com/api/contact', {
+            const response = await fetch(CONTACT_API_PATH, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
             if (response.ok) {
-                formMessage.textContent = currentLang === 'en' ? "Message sent successfully!" : "Mesaj başarıyla gönderildi!";
-                formMessage.style.color = "#2ecc71";
+                showFormMessage(
+                    currentLang === 'en' ? "Message sent successfully!" : "Mesaj başarıyla gönderildi!",
+                    'success',
+                    5000
+                );
                 contactForm.reset();
-            } else { throw new Error('Failed'); }
+            } else {
+                throw new Error('Failed');
+            }
         } catch (error) {
-            formMessage.textContent = currentLang === 'en' ? "Failed to send message." : "Mesaj gönderilemedi.";
-            formMessage.style.color = "#e74c3c";
+            showFormMessage(
+                currentLang === 'en' ? "Failed to send message." : "Mesaj gönderilemedi.",
+                'error',
+                5000
+            );
         } finally {
-            btn.innerText = originalBtnText;
-            btn.disabled = false;
-            setTimeout(() => { formMessage.textContent = ""; }, 5000);
+            setSubmitState(false);
         }
     });
 });
