@@ -417,6 +417,10 @@ h1 {
     gap: 24px;
 }
 
+.awards-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .card {
     background: var(--bg-card);
     padding: 28px;
@@ -456,6 +460,19 @@ h1 {
     font-size: 0.9rem;
 }
 
+.award-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: center;
+    margin-top: -16px;
+    overflow-wrap: anywhere;
+}
+
+.award-link i {
+    font-size: 0.9rem;
+}
+
 .static-card {
     justify-content: center;
     text-align: center;
@@ -468,6 +485,10 @@ h1 {
 
 .static-card .gold {
     color: #fbbf24;
+}
+
+.static-card .silver {
+    color: #c0c7d1;
 }
 
 .cert-card {
@@ -773,6 +794,10 @@ body.menu-open {
         gap: 16px;
     }
 
+    .awards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .card {
         padding: 20px;
     }
@@ -790,5 +815,11 @@ body.menu-open {
         height: 56px;
         right: 20px;
         bottom: 20px;
+    }
+}
+
+@media (max-width: 640px) {
+    .awards-grid {
+        grid-template-columns: 1fr;
     }
 }
