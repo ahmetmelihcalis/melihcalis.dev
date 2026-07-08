@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_ERROR_MESSAGES = {
         tr: {
             400: 'Gönderim doğrulanamadı.',
+            422: 'Lütfen form alanlarını kontrol edin.',
             429: 'Çok sık deneme yaptınız. Lütfen bir dakika sonra tekrar deneyin.',
             500: 'Sunucuda beklenmeyen bir hata oluştu.',
             502: 'E-posta servisine şu anda ulaşılamıyor.',
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         en: {
             400: 'Your submission could not be verified.',
+            422: 'Please check the form fields.',
             429: 'You have tried too often. Please wait a minute and try again.',
             500: 'An unexpected server error occurred.',
             502: 'The email service is unavailable right now.',
@@ -290,12 +292,42 @@ document.addEventListener('DOMContentLoaded', () => {
         return fallbackDetail || API_ERROR_MESSAGES[lang].default;
     }
 
+    function normalizeErrorDetail(detail) {
+        if (typeof detail === 'string') {
+            return detail;
+        }
+
+        if (Array.isArray(detail)) {
+            const messages = detail
+                .map((item) => {
+                    if (typeof item === 'string') {
+                        return item;
+                    }
+
+                    if (item && typeof item === 'object' && typeof item.msg === 'string') {
+                        return item.msg;
+                    }
+
+                    return '';
+                })
+                .filter(Boolean);
+
+            return messages.join(' ');
+        }
+
+        if (detail && typeof detail === 'object' && typeof detail.msg === 'string') {
+            return detail.msg;
+        }
+
+        return '';
+    }
+
     async function getResponseError(response) {
         let fallbackDetail = '';
 
         try {
             const errorPayload = await response.json();
-            fallbackDetail = errorPayload.detail || '';
+            fallbackDetail = normalizeErrorDetail(errorPayload.detail);
         } catch (error) {
             fallbackDetail = '';
         }
