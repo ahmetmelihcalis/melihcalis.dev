@@ -18,12 +18,6 @@ desktop.ini
 .vscode/
 .idea/
 
-# --- Node.js  ---
-node_modules/
-dist/
-build/
-coverage/
-
 # --- Logs and Archives ---
 *.log
 *.zip

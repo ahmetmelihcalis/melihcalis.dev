@@ -25,6 +25,11 @@ ALLOWED_ORIGINS = [
 BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
 BREVO_SUCCESS_STATUS = 201
 BREVO_TIMEOUT_SECONDS = 10
+CONTACT_SERVICE_UNAVAILABLE = "Contact service is not configured."
+EMAIL_DELIVERY_FAILED = "Email service could not process the message."
+EMAIL_SERVICE_UNAVAILABLE = "Email service is unavailable."
+EMAIL_SERVICE_TIMEOUT = "Email service timed out."
+INTERNAL_SERVER_ERROR = "Internal Server Error"
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -55,7 +60,7 @@ def get_email_settings() -> tuple[str, str]:
     my_email = os.getenv("MY_EMAIL")
 
     if not brevo_api_key or not my_email:
-        raise HTTPException(status_code=500, detail="API credentials not configured.")
+        raise HTTPException(status_code=500, detail=CONTACT_SERVICE_UNAVAILABLE)
 
     return brevo_api_key, my_email
 
@@ -111,13 +116,15 @@ def send_mail(request: Request, data: ContactForm):
             return {"message": "Message sent successfully!"}
 
         print(f"Brevo Error: {response.text}")
-        raise HTTPException(status_code=500, detail="Failed to send email via API")
+        raise HTTPException(status_code=502, detail=EMAIL_DELIVERY_FAILED)
     except requests.Timeout:
         print("Brevo Error: Request timed out")
-        raise HTTPException(status_code=504, detail="Email service timed out.")
+        raise HTTPException(status_code=504, detail=EMAIL_SERVICE_TIMEOUT)
     except requests.RequestException as e:
         print(f"Brevo Request Error: {e}")
-        raise HTTPException(status_code=502, detail="Email service is unavailable.")
+        raise HTTPException(status_code=502, detail=EMAIL_SERVICE_UNAVAILABLE)
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"System Error: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail=INTERNAL_SERVER_ERROR)
