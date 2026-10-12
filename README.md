@@ -6,8 +6,9 @@
 Kişisel portfolyo web sitem; projelerimi, yeteneklerimi, özgeçmişimi ve iletişim formunu içerir.
 
 ### Özellikler
-- Responsive tasarım (Mobil & Masaüstü)
+- Terminal temalı, responsive tasarım (Mobil & Masaüstü)
 - Karanlık/Açık tema ve çoklu dil desteği (TR/EN)
+- GitHub'daki öne çıkarılan repolar otomatik listelenir
 - FastAPI tabanlı iletişim altyapısı
 
 ### Teknolojiler
@@ -25,8 +26,9 @@ Kişisel portfolyo web sitem; projelerimi, yeteneklerimi, özgeçmişimi ve ilet
 My personal portfolio website; includes my projects, skills, resume, and a contact form.
 
 ### Features
-- Responsive design (Mobile & Desktop)
+- Terminal-style, responsive design (Mobile & Desktop)
 - Dark/Light theme and multi-language support (TR/EN)
+- Pinned GitHub repositories are listed automatically
 - FastAPI-based contact system
 
 ### Technologies
@@ -35,4 +37,3 @@ My personal portfolio website; includes my projects, skills, resume, and a conta
 
 ### Contact
 - You can reach me via the contact form on the website.
-
