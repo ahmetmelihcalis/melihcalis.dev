@@ -37,7 +37,7 @@ html {
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Manrope', sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
     padding-top: var(--nav-height);
@@ -49,7 +49,7 @@ h2,
 h3,
 h4,
 .navbar-brand {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Manrope', sans-serif;
 }
 
 a {
@@ -145,7 +145,7 @@ ul {
     color: var(--text-sub);
     font-size: 1.1rem;
     cursor: pointer;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Manrope', sans-serif;
     font-weight: 600;
 }
 
@@ -201,7 +201,7 @@ h1 {
 .typewriter-wrapper {
     font-size: 1.2rem;
     color: var(--accent);
-    font-family: 'Outfit';
+    font-family: 'Manrope';
     min-height: 1.5em;
     margin-bottom: 16px;
 }
@@ -249,7 +249,7 @@ h1 {
     padding: 12px 30px;
     border-radius: 50px;
     font-weight: 600;
-    font-family: 'Outfit';
+    font-family: 'Manrope';
 }
 
 .btn-primary {
@@ -572,7 +572,7 @@ h1 {
     padding: 16px 24px;
     border-radius: 50px;
     color: var(--text-main);
-    font-family: 'Inter';
+    font-family: 'Manrope';
     font-size: 1rem;
 }
 
@@ -822,4 +822,164 @@ body.menu-open {
     .awards-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ---------- Polish (subtle) ---------- */
+
+body {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#navbar {
+    transition: box-shadow 0.3s, background 0.3s;
+}
+
+#navbar.scrolled {
+    box-shadow: 0 6px 24px -12px rgba(0, 0, 0, 0.5);
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link:not(.nav-cv-button)::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 100%;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.nav-link:not(.nav-cv-button):hover::after,
+.nav-link.active:not(.nav-cv-button)::after {
+    transform: scaleX(1);
+}
+
+.nav-cv-button,
+.social-links a,
+.btn-primary,
+.btn-secondary,
+.btn-sm,
+#sendBtn,
+.icon-btn {
+    transition: transform 0.25s ease, background-color 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s, opacity 0.25s;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+    box-shadow: 0 8px 20px -10px var(--accent);
+}
+
+.card,
+.skill-card,
+.featured-project {
+    transition: transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+}
+
+.card:hover,
+.skill-card:hover {
+    box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.55);
+}
+
+.skill-card:hover {
+    border-color: var(--accent);
+}
+
+.static-card:hover {
+    box-shadow: none;
+}
+
+.skill-list li {
+    transition: color 0.2s, transform 0.25s ease;
+}
+
+.skill-list li:hover {
+    color: var(--text-main);
+    transform: translateX(4px);
+}
+
+#typewriter::after {
+    content: '|';
+    margin-left: 2px;
+    animation: blink 1s steps(2) infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+#formMessage {
+    min-height: 1.2em;
+}
+
+#contactForm input,
+#contactForm textarea {
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+#contactForm input:focus,
+#contactForm textarea:focus {
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12);
+}
+
+body.light-mode #contactForm input:focus,
+body.light-mode #contactForm textarea:focus {
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.12);
+}
+
+/* Reveal: sections fade in one after another while scrolling */
+.reveal {
+    opacity: 0;
+    translate: 0 18px;
+    transition: opacity 0.6s ease var(--d, 0s), translate 0.6s ease var(--d, 0s), transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+}
+
+.reveal.in {
+    opacity: 1;
+    translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+
+    .reveal {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+
+/* Background animation (calm, same palette) */
+#bg-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+main,
+.footer {
+    position: relative;
+    z-index: 1;
+}
+
+/* Claude logo (Simple Icons mark, tinted) */
+.skill-list li i.claude-logo {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #d97757;
+    -webkit-mask: url("https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/claude.svg") center / contain no-repeat;
+    mask: url("https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/claude.svg") center / contain no-repeat;
 }

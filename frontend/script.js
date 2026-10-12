@@ -52,8 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'title-about': 'Hakkımda',
             'about-p1': 'İlab Grup bünyesinde yer alan SteelOrbis’te Yazılım Uzman Yardımcısı olarak çalışıyor, aynı zamanda Kocaeli Üniversitesi Yazılım Mühendisliği bölümünde öğrenim görüyorum. Yapay zeka teknolojilerini keşfetmeye ve bu alanda üretmeye büyük bir tutku duyuyorum. Hedefim, yapay zeka alanında bir kariyer inşa etmek ve bu teknolojinin gelişimine katkı sunmak.',
             'about-p2': 'Bilgisayar başında vakit geçirmekten, yeni teknolojiler keşfetmekten ve sürekli öğrenmekten keyif alıyorum. Sürekli öğrenme anlayışı, çalışmalarımın temelini oluşturuyor; bu doğrultuda yeni araçlar ve teknolojilerle denemeler yapmaya her zaman açığım.',
-            'about-p3': 'Programlamanın dışında sıkı bir Formula 1 hayranıyım. Ayrıca seyahat etmeyi, tarih açısından zengin şehirleri keşfetmeyi ve farklı kültürler hakkında bilgi edinmeyi seviyorum.',
-            'about-p4': 'Küçük bir not daha, yazı yazmayı da severim :)',
+            'about-p3': 'Programlamanın dışında sıkı bir Formula 1 hayranıyım. Ayrıca seyahat etmeyi, tarih açısından zengin şehirleri keşfetmeyi ve farklı kültürler hakkında bilgi edinmeyi de seviyorum.',
             'title-skills': 'Yetenekler',
             'skill-prog': 'Programlama Dilleri',
             'skill-frame': 'Frameworkler',
@@ -101,8 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'title-about': 'About Me',
             'about-p1': 'I work as an Associate Software Engineer at SteelOrbis, part of Ilab Grup, and I am also studying Software Engineering at Kocaeli University. I have a strong passion for exploring and building with AI technologies. My goal is to build a career in AI and contribute to the development of these technologies.',
             'about-p2': "I enjoy spending time on the computer, discovering new technologies, and continuously learning. A growth mindset underpins my work; I'm always open to experimenting with new tools and technologies.",
-            'about-p3': "Outside of programming, I'm an avid Formula 1 fan. I also enjoy traveling, exploring historically rich cities, and learning about different cultures.",
-            'about-p4': 'One more note: I enjoy writing :)',
+            'about-p3': "Outside of programming, I'm an avid Formula 1 fan. I enjoy traveling, exploring historically rich cities, and learning about different cultures as well.",
             'title-skills': 'Skills',
             'skill-prog': 'Programming Languages',
             'skill-frame': 'Frameworks',
@@ -175,8 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const typewriterWords = {
-        tr: ['Yazılım Mühendisliği Öğrencisi', 'İnovatif İnsan'],
-        en: ['Software Engineering Student', 'AI Enthusiast', 'Future Innovator']
+        tr: ['Yapay Zeka Tutkunu', 'İnovatif İnsan'],
+        en: ['AI Enthusiast', 'Future Innovator']
     };
 
     function applyTextTranslations(lang) {
@@ -394,6 +392,147 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     setLanguage(currentLang);
+
+    /* ---------- Subtle page behaviour ---------- */
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const navbar = document.getElementById('navbar');
+
+    function onScrollUpdate() {
+        navbar.classList.toggle('scrolled', document.documentElement.scrollTop > 10);
+    }
+    window.addEventListener('scroll', onScrollUpdate, { passive: true });
+    onScrollUpdate();
+
+    const revealTargets = document.querySelectorAll(
+        '.section-title, .about-card, .skill-card, .featured-project, .subsection-title, .project-card, .static-card, .cert-card, .contact-box'
+    );
+    revealTargets.forEach((el) => {
+        el.classList.add('reveal');
+        const index = Array.from(el.parentElement.children).indexOf(el);
+        el.style.setProperty('--d', `${Math.min(index, 4) * 0.08}s`);
+    });
+    if ('IntersectionObserver' in window && !reduceMotion) {
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' });
+        revealTargets.forEach((el) => revealObserver.observe(el));
+    } else {
+        revealTargets.forEach((el) => el.classList.add('in'));
+    }
+
+    /* ---------- Calm background network ---------- */
+    const canvas = document.createElement('canvas');
+    canvas.id = 'bg-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    document.body.prepend(canvas);
+    const ctx = canvas.getContext('2d');
+    const pointer = { x: -9999, y: -9999 };
+    let particles = [];
+    let width = 0;
+    let height = 0;
+    let rgb = '0, 212, 255';
+
+    function readAccent() {
+        const hex = getComputedStyle(body).getPropertyValue('--accent').trim().replace('#', '');
+        if (hex.length === 6) {
+            rgb = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
+        }
+    }
+
+    function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const count = Math.min(Math.floor((width * height) / 22000), 60);
+        particles = Array.from({ length: count }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.22,
+            vy: (Math.random() - 0.5) * 0.22,
+            r: Math.random() * 1.1 + 0.5
+        }));
+    }
+
+    function drawFrame() {
+        ctx.clearRect(0, 0, width, height);
+        const linkDist = 130;
+        for (let i = 0; i < particles.length; i += 1) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+
+            const dx = p.x - pointer.x;
+            const dy = p.y - pointer.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < 110 && dist > 0) {
+                p.x += (dx / dist) * 0.5;
+                p.y += (dy / dist) * 0.5;
+            }
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${rgb}, 0.65)`;
+            ctx.fill();
+
+            for (let j = i + 1; j < particles.length; j += 1) {
+                const q = particles[j];
+                const d = Math.hypot(p.x - q.x, p.y - q.y);
+                if (d < linkDist) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(q.x, q.y);
+                    ctx.strokeStyle = `rgba(${rgb}, ${0.2 * (1 - d / linkDist)})`;
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    resizeCanvas();
+    readAccent();
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('mousemove', (event) => {
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+    });
+    new MutationObserver(readAccent).observe(body, { attributes: true, attributeFilter: ['class'] });
+    if (reduceMotion) {
+        drawFrame();
+    } else {
+        (function animate() {
+            if (!document.hidden) {
+                drawFrame();
+            }
+            requestAnimationFrame(animate);
+        })();
+    }
+
+    const spyLinks = Array.from(document.querySelectorAll('.nav-link[href^="#"]'));
+    if ('IntersectionObserver' in window) {
+        const spyObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    spyLinks.forEach((link) => {
+                        link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`);
+                    });
+                }
+            });
+        }, { rootMargin: '-45% 0px -50% 0px' });
+        spyLinks
+            .map((link) => document.querySelector(link.getAttribute('href')))
+            .filter(Boolean)
+            .forEach((section) => spyObserver.observe(section));
+    }
 
     contactForm.addEventListener('submit', async (event) => {
         event.preventDefault();
