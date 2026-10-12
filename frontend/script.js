@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'skill-tools': 'Araçlar',
             'title-projects': 'Projeler & Başarılar',
             'badge-featured': 'Öne Çıkan Proje',
+            'pinned-title': 'Öne Çıkan Projeler',
             'feat-proj-desc': 'PharmAI, ilaçlara ilişkin temel bilgileri ve olası yan etkileri yapay zeka destekli analizlerle sunan bir bilgi platformudur. Doğal dil işleme teknolojileriyle ilaç verilerini özetler; etkileşim analizi ve ilaç karşılaştırma gibi özellikleri tek bir çatı altında toplar.',
             'feat-proj-title': 'PharmAI — Yapay Zeka Destekli İlaç Bilgi Platformu',
             'feat-code': 'Kodlar',
@@ -107,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'skill-tools': 'Tools',
             'title-projects': 'Projects & Achievements',
             'badge-featured': 'Featured Project',
+            'pinned-title': 'Featured Projects',
             'feat-proj-desc': 'PharmAI is an information platform that provides core drug details and possible side effects through AI-powered analyses. It summarizes drug data using natural language processing technologies, and brings features such as interaction analysis and drug comparison together under a single roof.',
             'feat-proj-title': 'PharmAI — AI-Powered Drug Information Platform',
             'feat-code': 'Code',
@@ -135,6 +137,19 @@ document.addEventListener('DOMContentLoaded', () => {
             'btn-send': 'Send Message'
         }
     };
+
+    function applyPinnedLanguage(lang) {
+        document.querySelectorAll('.repo-card').forEach((card) => {
+            let translations = {};
+            try {
+                translations = JSON.parse(card.dataset.translations || '{}');
+            } catch (error) {
+                translations = {};
+            }
+            const text = translations[lang];
+            card.querySelector('p').textContent = (typeof text === 'string' && text) || card.dataset.desc || '';
+        });
+    }
 
     const langToggle = document.getElementById('lang-toggle');
     const themeToggle = document.getElementById('theme-toggle');
@@ -247,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTextTranslations(lang);
         applyAttributeTranslations(lang);
         applyFormPlaceholders(lang);
+        applyPinnedLanguage(lang);
         resetTypewriter();
     }
 
@@ -516,6 +532,96 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(animate);
         })();
     }
+
+    /* ---------- Pinned GitHub repositories ---------- */
+    const GITHUB_USER = 'ahmetmelihcalis';
+    const PINNED_API = '/api/pinned';
+    const pinnedSection = document.getElementById('pinned-section');
+    const pinnedGrid = document.getElementById('pinned-grid');
+    const featuredFallback = document.getElementById('featured-fallback');
+
+    function buildRepoCard(repo) {
+        const card = document.createElement('a');
+        card.className = 'card repo-card';
+        card.href = `https://github.com/${repo.author}/${repo.name}`;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+
+        const head = document.createElement('div');
+        head.className = 'repo-head';
+        const icon = document.createElement('i');
+        icon.className = 'fab fa-github';
+        const title = document.createElement('h4');
+        title.textContent = repo.author.toLowerCase() === GITHUB_USER ? repo.name : `${repo.author}/${repo.name}`;
+        head.append(icon, title);
+
+        card.dataset.repo = repo.name;
+        card.dataset.desc = repo.description || '';
+        card.dataset.translations = JSON.stringify(repo.translations && typeof repo.translations === 'object' ? repo.translations : {});
+        const desc = document.createElement('p');
+        desc.textContent = repo.description || '';
+
+        const meta = document.createElement('div');
+        meta.className = 'repo-meta';
+        if (repo.language) {
+            const lang = document.createElement('span');
+            const swatch = document.createElement('i');
+            swatch.className = 'repo-lang-dot';
+            if (repo.languageColor) {
+                swatch.style.background = repo.languageColor;
+            }
+            lang.append(swatch, document.createTextNode(repo.language));
+            meta.append(lang);
+        }
+        [['fa-star', repo.stars], ['fa-code-branch', repo.forks]].forEach(([iconClass, count]) => {
+            if (Number(count) > 0) {
+                const item = document.createElement('span');
+                const itemIcon = document.createElement('i');
+                itemIcon.className = `fas ${iconClass}`;
+                item.append(itemIcon, document.createTextNode(` ${Number(count)}`));
+                meta.append(item);
+            }
+        });
+
+        card.append(head, desc, meta);
+        return card;
+    }
+
+    function renderPinned(repos) {
+        if (!repos.length) {
+            return false;
+        }
+
+        pinnedGrid.replaceChildren(...repos.map(buildRepoCard));
+        pinnedGrid.dataset.count = String(repos.length);
+        applyPinnedLanguage(currentLang);
+        pinnedGrid.querySelectorAll('.card').forEach((card, index) => {
+            card.classList.add('reveal');
+            card.style.setProperty('--d', `${Math.min(index, 5) * 0.06}s`);
+            requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('in')));
+        });
+        pinnedSection.hidden = false;
+        featuredFallback.hidden = true;
+        return true;
+    }
+
+    async function loadPinned() {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 8000);
+        try {
+            const response = await fetch(PINNED_API, { signal: controller.signal });
+            if (!response.ok) {
+                throw new Error(`Pinned API ${response.status}`);
+            }
+            const { repos } = await response.json();
+            renderPinned(Array.isArray(repos) ? repos : []);
+        } catch (error) {
+            /* keep the static featured project */
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+    loadPinned();
 
     const spyLinks = Array.from(document.querySelectorAll('.nav-link[href^="#"]'));
     if ('IntersectionObserver' in window) {

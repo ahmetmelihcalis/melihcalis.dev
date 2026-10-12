@@ -5,6 +5,9 @@ venv/
 .venv/
 env/
 
+# --- Generated caches ---
+backend/translation_cache.json
+
 # --- Environment & Secrets ---
 .env
 .env.local

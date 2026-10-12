@@ -465,7 +465,7 @@ h1 {
     align-items: center;
     gap: 8px;
     align-self: center;
-    margin-top: -16px;
+    margin-top: 0;
     overflow-wrap: anywhere;
 }
 
@@ -982,4 +982,96 @@ main,
     background-color: #d97757;
     -webkit-mask: url("https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/claude.svg") center / contain no-repeat;
     mask: url("https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/claude.svg") center / contain no-repeat;
+}
+
+/* Pinned GitHub repositories */
+.pinned-title {
+    margin-top: 0;
+}
+
+.repo-card {
+    text-decoration: none;
+    color: inherit;
+}
+
+.repo-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.repo-head i {
+    font-size: 1.3rem;
+    color: var(--accent);
+}
+
+.repo-head h4 {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.repo-card p {
+    margin-bottom: 18px;
+}
+
+.repo-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    color: var(--text-sub);
+    font-size: 0.85rem;
+}
+
+.repo-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.repo-meta i {
+    font-size: 0.8rem;
+}
+
+.repo-lang-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+}
+
+/* Five pinned repositories: three on top, two wider below */
+.pinned-grid[data-count="5"] {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.pinned-grid[data-count="5"] .repo-card {
+    grid-column: span 2;
+}
+
+.pinned-grid[data-count="5"] .repo-card:nth-child(n + 4) {
+    grid-column: span 3;
+}
+
+@media (max-width: 900px) {
+    .pinned-grid[data-count="5"] {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pinned-grid[data-count="5"] .repo-card,
+    .pinned-grid[data-count="5"] .repo-card:nth-child(n + 4) {
+        grid-column: auto;
+    }
+
+    .pinned-grid[data-count="5"] .repo-card:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .pinned-grid[data-count="5"] {
+        grid-template-columns: 1fr;
+    }
 }
