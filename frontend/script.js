@@ -413,11 +413,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const navbar = document.getElementById('navbar');
 
+    const statusSection = document.getElementById('sb-section');
+
+    function updateStatusBar() {
+        const active = document.querySelector('.nav-link.active:not(.nav-cv-button)');
+        statusSection.textContent = active ? active.textContent.trim() : '';
+    }
+
     function onScrollUpdate() {
         navbar.classList.toggle('scrolled', document.documentElement.scrollTop > 10);
+        updateStatusBar();
     }
     window.addEventListener('scroll', onScrollUpdate, { passive: true });
     onScrollUpdate();
+    langToggle.addEventListener('click', () => requestAnimationFrame(updateStatusBar));
 
     const revealTargets = document.querySelectorAll(
         '.section-title, .about-card, .skill-card, .featured-project, .subsection-title, .project-card, .static-card, .cert-card, .contact-box'
@@ -593,7 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         pinnedGrid.replaceChildren(...repos.map(buildRepoCard));
-        pinnedGrid.dataset.count = String(repos.length);
         applyPinnedLanguage(currentLang);
         pinnedGrid.querySelectorAll('.card').forEach((card, index) => {
             card.classList.add('reveal');
@@ -623,6 +631,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadPinned();
 
+    const lastLogin = document.getElementById('last-login');
+    const now = new Date();
+    const clock = [now.getHours(), now.getMinutes(), now.getSeconds()].map((n) => String(n).padStart(2, '0')).join(':');
+    const day = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).replace(',', '');
+    lastLogin.textContent = `Last login: ${day} ${clock} on ttys001`;
+
     const spyLinks = Array.from(document.querySelectorAll('.nav-link[href^="#"]'));
     if ('IntersectionObserver' in window) {
         const spyObserver = new IntersectionObserver((entries) => {
@@ -631,6 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     spyLinks.forEach((link) => {
                         link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`);
                     });
+                    updateStatusBar();
                 }
             });
         }, { rootMargin: '-45% 0px -50% 0px' });

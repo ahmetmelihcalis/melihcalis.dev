@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
@@ -34,12 +34,13 @@
                 <a href="#skills" class="nav-link" data-lang="nav-skills">Yetenekler</a>
                 <a href="#projects" class="nav-link" data-lang="nav-projects">Projeler</a>
                 <a href="#contact" class="nav-link" data-lang="nav-contact">İletişim</a>
-                <a id="download-cv" href="docs/AHMET MELIH CALIS - CV (EN) - Website Version.pdf"
-                    class="nav-link nav-cv-button" download data-lang="nav-cv">CV
-                    İndir</a>
+                <a href="docs/AHMET MELIH CALIS - CV (EN) - Website Version.pdf"
+                    class="nav-link nav-cv-button nav-cv-mobile" download data-lang="nav-cv">CV İndir</a>
             </nav>
 
             <div class="nav-controls">
+                <a id="download-cv" href="docs/AHMET MELIH CALIS - CV (EN) - Website Version.pdf"
+                    class="nav-link nav-cv-button nav-cv-desktop" download data-lang="nav-cv">CV İndir</a>
                 <button id="lang-toggle" class="icon-btn">EN</button>
                 <button id="theme-toggle" class="icon-btn" aria-label="Tema Değiştir"><i
                         class="fas fa-moon"></i></button>
@@ -56,6 +57,16 @@
     <main>
         <section id="home" class="section hero-section">
             <div class="container">
+                <div class="term-welcome" aria-hidden="true">
+                    <pre class="term-mascot"> ▐▛███▜▌
+▝▜█████▛▘
+  ▘▘ ▝▝</pre>
+                    <div class="term-welcome-text">
+                        <span id="last-login"></span>
+                        <span>~/melihcalis.dev</span>
+                    </div>
+                </div>
+
                 <div class="profile-wrapper">
                     <img src="docs/profile.jpeg" alt="Ahmet Melih Çalış" class="profile-pic">
                 </div>
@@ -202,14 +213,14 @@
                         <p data-lang="proj-1-desc">GitHub’da paylaştığım makine öğrenmesi notlarım, kişisel portfolyo
                             sitem ve tüm çalışmalarım.</p>
                         <a href="https://github.com/ahmetmelihcalis" target="_blank" rel="noopener noreferrer"
-                            class="card-link"><i class="fas fa-external-link-alt"></i> GitHub</a>
+                            class="card-link"><i class="fab fa-github"></i> GitHub</a>
                     </div>
                     <div class="card project-card">
                         <div class="card-icon"><i class="fab fa-kaggle"></i></div>
                         <h4 data-lang="proj-2-title">Kaggle Yolculuğum</h4>
                         <p data-lang="proj-2-desc">Kaggle’da paylaştığım notebooklarım ve çalışmalarım.</p>
                         <a href="https://www.kaggle.com/ahmetmelihcalis" target="_blank" rel="noopener noreferrer"
-                            class="card-link"><i class="fas fa-external-link-alt"></i> Kaggle</a>
+                            class="card-link"><i class="fab fa-kaggle"></i> Kaggle</a>
                     </div>
                 </div>
 
@@ -222,7 +233,7 @@
                             Finalisti</p>
                         <a href="https://github.com/ahmetmelihcalis/PharmAI" target="_blank"
                             rel="noopener noreferrer" class="card-link award-link"><i
-                                class="fas fa-up-right-from-square"></i><span>GitHub</span></a>
+                                class="fab fa-github"></i><span>GitHub</span></a>
                     </div>
                     <div class="card static-card">
                         <div class="card-icon silver"><i class="fas fa-medal"></i></div>
@@ -230,7 +241,7 @@
                         <p data-lang="award-4-desc">2.'lik - InsightMap</p>
                         <a href="https://github.com/ahmetmelihcalis/InsightMap" target="_blank"
                             rel="noopener noreferrer" class="card-link award-link"><i
-                                class="fas fa-up-right-from-square"></i><span>GitHub</span></a>
+                                class="fab fa-github"></i><span>GitHub</span></a>
                     </div>
                     <div class="card static-card">
                         <div class="card-icon gold"><i class="fas fa-award"></i></div>
@@ -249,7 +260,7 @@
                     <a href="https://www.linkedin.com/in/ahmetmelihcalis/details/certifications/" target="_blank"
                         class="card cert-card" rel="noopener noreferrer">
                         <div class="cert-content">
-                            <i class="fab fa-google" style="color:#4285F4;"></i>
+                            <i class="fab fa-google"></i>
                             <div>
                                 <h4 data-lang="cert-1-title">Google ve Diğer Sertifikalarım</h4>
                             </div>
@@ -259,7 +270,7 @@
                     <a href="https://verified.sertifier.com/en/profile/ahmetmelihcalis2820940/" target="_blank"
                         class="card cert-card" rel="noopener noreferrer">
                         <div class="cert-content">
-                            <i class="fas fa-certificate" style="color:#4285F4; margin-right:8px;"></i>
+                            <i class="fas fa-certificate"></i>
                             <div>
                                 <h4 data-lang="cert-2-title">Sertifier Sertifikalarım</h4>
                             </div>
@@ -298,6 +309,11 @@
     <footer class="footer">
         <p>© 2026 Ahmet Melih Çalış.</p>
     </footer>
+
+    <div id="statusbar" aria-hidden="true">
+        <span class="sb-left">✻ melihcalis.dev</span>
+        <span class="sb-mid" id="sb-section"></span>
+    </div>
 
     <a href="#" id="back-to-top"><i class="fas fa-arrow-up"></i></a>
     <div id="preloader">
